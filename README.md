@@ -26,10 +26,28 @@ BBC kaynağından alınan veri ile yapılan test sonucu:
 ### 3. Sahte Haber Testi (Fake News)
 Manipülatif içerik ile yapılan test sonucu:
 ![Sahte Haber Testi](test_fake.png)
+---
+## 🌍 v2.0 Güncellemesi: Çoklu Dil Desteği (Multi-language Support)
+
+Projenin 2. versiyonunda **Google Translate API** entegrasyonu yapılmıştır. Artık sistem, girilen metnin dilini otomatik olarak algılar, İngilizceye çevirir ve analiz eder.
+
+### Test 1: Japonca Haber Testi (Non-Latin Characters)
+Latin alfabesi dışındaki dillerde bile sistemin çalıştığının kanıtı:
+![Japonca Test](japanese_test.png)
+
+### Test 2: İtalyanca Sahte Haber Testi (Logic Check)
+Çeviri katmanına rağmen modelin "Fake" içeriği başarıyla tespit etmesi:
+![İtalyanca Test](italian_test.png)
+
+## ⚠️ Sınırlamalar ve Bilinen Sorunlar (Limitations)
+
+1. **Çeviri Hassasiyeti:** Sistem, İngilizce olmayan metinler için Google Translate altyapısını kullandığından, nadiren de olsa çeviri hataları tahmin doğruluğunu etkileyebilir.
+2. **Yanlış Alarmlar (False Positives):** Tık tuzağı (clickbait) haberlerde sıkça geçen iddialı kelimeler (Örn: "Acil", "Şok", "İnanılmaz"), haberin kaynağı güvenilir olsa bile modelin "Sahte" olarak etiketlemesine neden olabilir.
 
 ## 💻 Kurulum ve Çalıştırma
 
 1. Projeyi bilgisayarınıza klonlayın veya indirin.
 2. Gerekli kütüphaneleri yükleyin:
    ```bash
+
    pip install -r requirements.txt
