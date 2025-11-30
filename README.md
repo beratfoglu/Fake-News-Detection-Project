@@ -17,7 +17,7 @@ Proje, Kaggle üzerinden sağlanan açık kaynaklı "Fake and Real News Dataset"
 
 ### 1. Model Başarı Oranı
 Model eğitildikten sonra elde edilen doğruluk skoru:
-![Başarı Oranı](basari_orani.png)
+![Başarı Oranı](model_basari_orani.png)
 
 ### 2. Gerçek Haber Testi (Real News)
 BBC kaynağından alınan veri ile yapılan test sonucu:
@@ -51,3 +51,4 @@ Latin alfabesi dışındaki dillerde bile sistemin çalıştığının kanıtı:
    ```bash
 
    pip install -r requirements.txt
+
