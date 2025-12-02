@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector v3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- GENEL AYARLAR --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* O sevdiğin mor tema */
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 900px; 
+            margin: 0 auto; 
+        }
+
+        .header { 
+            text-align: center; 
+            color: white; 
+            margin-bottom: 30px; 
+        }
+        
+        .header h1 { 
+            font-size: 2.5em; 
+            margin-bottom: 10px; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2); 
+        }
+        
+        .header p { 
+            opacity: 0.9; 
+            font-weight: 300; 
+            font-size: 1.1em;
+        }
+        
+        /* --- KART TASARIMI --- */
+        .main-card { 
+            background: white; 
+            border-radius: 20px; 
+            padding: 40px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+        }
+        
+        /* --- SEKMELER (TABS) --- */
+        .tabs { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #f0f0f0; 
+        }
+        
+        .tab { 
+            padding: 15px 30px; 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 1.1em; 
+            color: #888; 
+            border-bottom: 3px solid transparent; 
+            transition: all 0.3s; 
+            font-weight: 600;
+        }
+        
+        .tab.active { 
+            color: #667eea; 
+            border-bottom-color: #667eea; 
+        }
+        
+        .tab:hover { 
+            color: #667eea; 
+            background-color: #f9f9f9;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        /* --- GİRİŞ ALANLARI --- */
+        .input-area { display: none; animation: fadeIn 0.4s; }
+        .input-area.active { display: block; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        textarea, input { 
+            width: 100%; 
+            padding: 15px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 12px; 
+            font-size: 1em; 
+            font-family: inherit; 
+            transition: 0.3s; 
+            background: #fcfcfc;
+        }
+        
+        textarea:focus, input:focus { 
+            outline: none; 
+            border-color: #667eea; 
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* --- BUTON --- */
+        .analyze-btn { 
+            width: 100%; 
+            padding: 18px; 
+            margin-top: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1.2em; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .analyze-btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4); 
+        }
+        
+        .analyze-btn:active { 
+            transform: translateY(0); 
+        }
+
+        /* --- SONUÇ ALANI --- */
+        .result { 
+            margin-top: 35px; 
+            padding: 30px; 
+            border-radius: 15px; 
+            display: none; 
+            text-align: center;
+        }
+        
+        .result.show { display: block; animation: slideIn 0.5s; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .result.fake { background: #fff5f5; border: 2px solid #fc8181; color: #c53030; }
+        .result.real { background: #f0fff4; border: 2px solid #68d391; color: #276749; }
+        
+        .result-icon { font-size: 4em; margin-bottom: 10px; display: block; }
+        .result-title { font-size: 2em; font-weight: 800; margin-bottom: 5px; }
+        .result-desc { font-size: 1.1em; opacity: 0.9; }
+
+        .translation-box { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background: white; 
+            border-radius: 10px; 
+            border-left: 5px solid #667eea; 
+            font-size: 0.95em; 
+            color: #555; 
+            text-align: left;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* --- YÜKLENİYOR --- */
+        .loading { display: none; text-align: center; padding: 30px; }
+        .loading.show { display: block; }
+        .spinner { 
+            border: 5px solid #f3f3f3; 
+            border-top: 5px solid #667eea; 
+            border-radius: 50%; 
+            width: 50px; 
+            height: 50px; 
+            animation: spin 1s linear infinite; 
+            margin: 0 auto 15px auto; 
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Mobil Uyum */
+        @media (max-width: 768px) {
+            .container { padding: 0; }
+            .header h1 { font-size: 1.8em; }
+            .main-card { padding: 20px; border-radius: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Fake News Detector v3</h1>
+            <p>Yapay Zeka Destekli Haber Doğrulama Sistemi</p>
+        </div>
+
+        <div class="main-card">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('text')">📝 Metin Analizi</button>
+                <button class="tab" onclick="switchTab('url')">🔗 URL Analizi</button>
+            </div>
+
+            <div id="textInputArea" class="input-area active">
+                <label style="display:block; margin-bottom:10px; font-weight:600; color:#444;">Haber Metni</label>
+                <textarea id="newsText" rows="6" placeholder="Kontrol etmek istediğiniz haberi buraya yapıştırın (Türkçe, İngilizce fark etmez)..."></textarea>
+            </div>
+
+            <div id="urlInputArea" class="input-area">
+                <label style="display:block; margin-bottom:10px; font-weight:600; color:#444;">Haber Linki (URL)</label>
+                <input type="url" id="newsUrl" placeholder="https://www.bbc.com/news/...">
+            </div>
+
+            <button class="analyze-btn" onclick="analyze()">ANALİZ ET</button>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Yapay Zeka Haberi İnceliyor...</p>
+            </div>
+
+            <div id="result" class="result">
+                <span id="resultIcon" class="result-icon"></span>
+                <div id="resultTitle" class="result-title"></div>
+                <div id="resultSubtitle" class="result-desc"></div>
+                
+                <div id="translationBox" class="translation-box" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'text';
+
+        function switchTab(mode) {
+            currentMode = mode;
+            
+            // Sekme butonlarının rengini değiştir
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // İlgili giriş alanını göster
+            document.getElementById('textInputArea').className = mode === 'text' ? 'input-area active' : 'input-area';
+            document.getElementById('urlInputArea').className = mode === 'url' ? 'input-area active' : 'input-area';
+
+            // Eski sonucu temizle
+            document.getElementById('result').classList.remove('show');
+        }
+
+        async function analyze() {
+            // Veriyi al
+            let content = '';
+            if (currentMode === 'text') {
+                content = document.getElementById('newsText').value.trim();
+                if (!content) return alert("Lütfen bir metin giriniz!");
+            } else {
+                content = document.getElementById('newsUrl').value.trim();
+                if (!content) return alert("Lütfen bir URL giriniz!");
+            }
+
+            // Arayüzü 'Yükleniyor' moduna al
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('loading').classList.add('show');
+
+            try {
+                // Python'a (app.py) istek gönder
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: currentMode, content: content })
+                });
+
+                const data = await response.json();
+
+                // Yükleniyor ekranını kapat
+                document.getElementById('loading').classList.remove('show');
+
+                if (data.error) {
+                    alert("HATA: " + data.error);
+                } else {
+                    showResult(data);
+                }
+
+            } catch (error) {
+                document.getElementById('loading').classList.remove('show');
+                alert("Sunucuyla iletişim kurulamadı! 'python app.py' çalışıyor mu?");
+                console.error(error);
+            }
+        }
+
+        function showResult(data) {
+            const resultDiv = document.getElementById('result');
+            const translationBox = document.getElementById('translationBox');
+
+            // Stili belirle (Fake = Kırmızı, Real = Yeşil)
+            resultDiv.className = 'result show ' + (data.isFake ? 'fake' : 'real');
+
+            // İçeriği doldur
+            document.getElementById('resultIcon').textContent = data.isFake ? '⚠️' : '✅';
+            document.getElementById('resultTitle').textContent = data.isFake ? 'FAKE NEWS' : 'REAL NEWS';
+            document.getElementById('resultSubtitle').textContent = data.isFake ? 
+                'Sistem bu haberin sahte veya manipülatif olabileceğini tespit etti.' : 
+                'Bu haber güvenilir kaynakların dil yapısına benziyor.';
+
+            // Çeviriyi göster (Varsa)
+            if (data.translation) {
+                translationBox.style.display = 'block';
+                // Metin çok uzunsa kırpıp gösterelim
+                let shortText = data.translation.length > 250 ? data.translation.substring(0, 250) + "..." : data.translation;
+                translationBox.innerHTML = `<strong>🤖 İngilizce Çevirisi (Analiz Edilen):</strong><br>${shortText}`;
+            } else {
+                translationBox.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
