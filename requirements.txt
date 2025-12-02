@@ -2,3 +2,7 @@ pandas
 numpy
 scikit-learn
 deep-translator
+newspaper3k
+lxml[html_clean]
+joblib
+nltk
